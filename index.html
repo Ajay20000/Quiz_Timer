@@ -1,226 +1,268 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Quiz Timer</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            user-select: none; /* Prevent text selection on click */
-        }
-        #timer {
-            font-size: 48px;
-            margin: 20px;
-        }
-        #questionTimer {
-            font-size: 36px;
-            margin: 10px;
-            color: #007bff;
-        }
-        #status {
-            font-size: 24px;
-            margin: 10px;
-        }
-        #startMessage {
-            font-size: 24px;
-            color: red;
-            margin: 20px;
-        }
-        #questionTimes {
-            font-size: 18px;
-            margin-top: 20px;
-            text-align: left;
-        }
-        #timeSetter {
-            margin: 20px;
-            font-size: 18px;
-        }
-        #timeSetter input {
-            padding: 5px;
-            font-size: 16px;
-            margin: 0 10px;
-            width: 60px;
-        }
-        #timeSetter button, #emergencyStop {
-            padding: 5px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px;
-        }
-        #emergencyStop {
-            background-color: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        #emergencyStop:hover {
-            background-color: #cc0000;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Timer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500&display=swap');
+
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: 'Manrope', sans-serif;
+      background: linear-gradient(to top right, #fdfdfd, #f5faff);
+      color: #2b2b2b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+      color: #444;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 80px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #4e89ff;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #3366ff;
+    }
+
+    #timer, #questionTimer {
+      font-size: 42px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    #questionTimer {
+      font-size: 32px;
+      color: #4e89ff;
+    }
+
+    #status, #startMessage {
+      font-size: 18px;
+      margin: 10px 0;
+      color: #555;
+    }
+
+    #startMessage {
+      color: #ff6b81;
+    }
+
+    #questionTimes {
+      margin-top: 30px;
+      font-size: 16px;
+      text-align: left;
+      max-width: 500px;
+      width: 100%;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .buttonRow {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      #timer, #questionTimer {
+        font-size: 30px;
+      }
+
+      input[type="number"] {
+        width: 60px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div id="timeSetter">
-        Set Total Time: 
-        <input type="number" id="minutesInput" min="1" placeholder="Minutes" value="30"> 
-        <button onclick="setTotalTime()">Set Time</button>
-    </div>
-    <div id="timer">30:00</div>
-    <div id="questionTimer">00:00</div>
-    <div id="status">Set time and click to start first question</div>
-    <div id="startMessage">Click anywhere to begin!</div>
-    <button id="emergencyStop" onclick="toggleEmergencyStop()">Emergency Stop</button>
-    <div id="questionTimes"></div>
-    <script>
-        let totalTime = 30 * 60; // Default 30 minutes in seconds
-        let timeLeft = totalTime;
-        let isRunning = false;
-        let isEmergencyStopped = false;
-        let timerInterval = null;
-        let questionNumber = 0;
-        let questionElapsedTime = 0;
-        let questionTimes = []; // Store time spent on each question
+  <h1>Quiz Timer</h1>
 
-        function formatTime(seconds) {
-            let mins = Math.floor(seconds / 60);
-            let secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
+  <div class="card" id="timeSetter">
+    <label for="minutesInput">Set Total Time:</label><br/><br/>
+    <input type="number" id="minutesInput" min="1" value="30" /> 
+    <button onclick="setTotalTime()">Set Time</button>
+  </div>
 
-        function setTotalTime() {
-            // Always allow setting time, reset everything
-            let minutes = parseInt(document.getElementById('minutesInput').value);
-            if (isNaN(minutes) || minutes < 1) {
-                alert('Please enter a valid number of minutes (minimum 1).');
-                return;
-            }
+  <div id="timer">30:00</div>
+  <div id="questionTimer">00:00</div>
+  <div id="status">Set time and click to start first question</div>
+  <div id="startMessage">Click anywhere to begin!</div>
 
-            // Clear any existing timer
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
+  <div class="buttonRow">
+    <button onclick="togglePause()">Pause</button>
+    <button onclick="resetTimer()">Reset</button>
+    <button onclick="exportCSV()">Export Report</button>
+  </div>
 
-            // Reset all state
-            totalTime = minutes * 60;
-            timeLeft = totalTime;
-            isRunning = false;
-            isEmergencyStopped = false;
-            questionNumber = 0;
-            questionElapsedTime = 0;
-            questionTimes = [];
+  <div id="questionTimes"></div>
 
-            // Update UI
-            document.getElementById('timer').textContent = formatTime(timeLeft);
-            document.getElementById('questionTimer').textContent = '00:00';
-            document.getElementById('status').textContent = 'Click to start first question';
-            document.getElementById('startMessage').textContent = 'Click anywhere to begin!';
-            document.getElementById('startMessage').style.display = 'block';
-            document.getElementById('emergencyStop').textContent = 'Emergency Stop';
-            document.getElementById('emergencyStop').style.display = 'block';
-            document.getElementById('questionTimes').innerHTML = '';
-        }
+  <script>
+    let totalTime = 30 * 60;
+    let timeLeft = totalTime;
+    let isRunning = false;
+    let isPaused = false;
+    let timerInterval = null;
+    let questionNumber = 0;
+    let questionElapsedTime = 0;
+    let questionTimes = [];
 
-        function updateTimer() {
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                document.getElementById('timer').textContent = '00:00';
-                document.getElementById('questionTimer').textContent = '00:00';
-                document.getElementById('status').textContent = 'Time Up!';
-                document.getElementById('startMessage').style.display = 'none';
-                document.getElementById('emergencyStop').style.display = 'none';
-                isRunning = false;
-                isEmergencyStopped = false;
-                return;
-            }
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
 
-            // Update total timer (countdown)
-            document.getElementById('timer').textContent = formatTime(timeLeft);
-            timeLeft--;
+    function setTotalTime() {
+      const minutes = parseInt(document.getElementById('minutesInput').value);
+      if (isNaN(minutes) || minutes < 1) return alert("Enter valid time");
 
-            // Update question timer (count up)
-            if (isRunning) {
-                questionElapsedTime++;
-                document.getElementById('questionTimer').textContent = formatTime(questionElapsedTime);
-            }
-        }
+      clearInterval(timerInterval);
+      totalTime = minutes * 60;
+      timeLeft = totalTime;
+      isRunning = false;
+      isPaused = false;
+      timerInterval = null;
+      questionNumber = 0;
+      questionElapsedTime = 0;
+      questionTimes = [];
 
-        function startRound() {
-            if (timeLeft <= 0 || isEmergencyStopped) return; // Don't start if time is up or emergency stopped
+      updateUI();
+    }
 
-            questionNumber++;
-            isRunning = true;
-            questionElapsedTime = 0; // Reset question timer
-            document.getElementById('questionTimer').textContent = '00:01'; // Start from 1 second
-            document.getElementById('status').textContent = `Question ${questionNumber} Running`;
-            document.getElementById('startMessage').style.display = 'none';
-            if (!timerInterval) {
-                timerInterval = setInterval(updateTimer, 1000);
-            }
-        }
+    function updateUI() {
+      document.getElementById('timer').textContent = formatTime(timeLeft);
+      document.getElementById('questionTimer').textContent = '00:00';
+      document.getElementById('status').textContent = 'Set time and click to start first question';
+      document.getElementById('startMessage').textContent = 'Click anywhere to begin!';
+      document.getElementById('questionTimes').innerHTML = '';
+    }
 
-        function stopRoundAndStartNext() {
-            if (!isRunning || isEmergencyStopped) return; // Ignore if not running or emergency stopped
-
-            let timeSpent = questionElapsedTime;
-            questionTimes.push({ question: questionNumber, time: timeSpent });
-            updateQuestionTimesDisplay();
-            document.getElementById('questionTimer').textContent = '00:00'; // Reset question timer display
-
-            // Immediately start the next round
-            startRound();
-        }
-
-        function toggleEmergencyStop() {
-            if (timeLeft <= 0) return; // Ignore if time is up
-
-            if (!isEmergencyStopped) {
-                // Stop the quiz
-                if (isRunning) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    isRunning = false;
-                }
-                isEmergencyStopped = true;
-                document.getElementById('status').textContent = 'Emergency Stopped - Click button to resume';
-                document.getElementById('emergencyStop').textContent = 'Resume Quiz';
-                document.getElementById('startMessage').style.display = 'none';
-            } else {
-                // Resume the quiz
-                isEmergencyStopped = false;
-                document.getElementById('emergencyStop').textContent = 'Emergency Stop';
-                document.getElementById('status').textContent = `Question ${questionNumber} Stopped. Click to start Question ${questionNumber + 1}`;
-                document.getElementById('startMessage').textContent = 'Click to start next question!';
-                document.getElementById('startMessage').style.display = 'block';
-            }
-        }
-
-        function updateQuestionTimesDisplay() {
-            let display = '<h3>Time Spent on Questions:</h3>';
-            questionTimes.forEach(q => {
-                display += `Question ${q.question}: ${formatTime(q.time)}<br>`;
-            });
-            document.getElementById('questionTimes').innerHTML = display;
-        }
-
-        // Handle screen clicks for question timing
-        document.addEventListener('click', function(e) {
-            // Ignore clicks on buttons and input
-            if (e.target.id === 'minutesInput' || e.target.tagName === 'BUTTON') return;
-            if (timeLeft <= 0 || isEmergencyStopped) return; // Ignore if time is up or emergency stopped
-
-            if (!isRunning) {
-                startRound();
-            } else {
-                stopRoundAndStartNext();
-            }
-        });
-
-        // Initialize display
+    function updateTimer() {
+      if (!isPaused && timeLeft > 0) {
+        timeLeft--;
         document.getElementById('timer').textContent = formatTime(timeLeft);
-        document.getElementById('questionTimer').textContent = '00:00';
-    </script>
+        if (isRunning) {
+          questionElapsedTime++;
+          document.getElementById('questionTimer').textContent = formatTime(questionElapsedTime);
+        }
+      }
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('timer').textContent = '00:00';
+        document.getElementById('status').textContent = 'Time Up!';
+      }
+    }
+
+    function startRound() {
+      if (timeLeft <= 0 || isPaused) return;
+
+      questionNumber++;
+      isRunning = true;
+      questionElapsedTime = 0;
+
+      document.getElementById('questionTimer').textContent = '00:01';
+      document.getElementById('status').textContent = `Question ${questionNumber} Running`;
+      document.getElementById('startMessage').style.display = 'none';
+
+      if (!timerInterval) timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function stopRoundAndStartNext() {
+      if (!isRunning || isPaused) return;
+
+      questionTimes.push({ question: questionNumber, time: questionElapsedTime });
+      updateQuestionTimesDisplay();
+      isRunning = false;
+      document.getElementById('questionTimer').textContent = '00:00';
+      startRound();
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      document.querySelector('button[onclick="togglePause()"]').textContent = isPaused ? 'Resume' : 'Pause';
+      document.getElementById('status').textContent = isPaused ? 'Paused' : `Question ${questionNumber} Running`;
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timeLeft = totalTime;
+      isRunning = false;
+      isPaused = false;
+      questionNumber = 0;
+      questionElapsedTime = 0;
+      questionTimes = [];
+      updateUI();
+    }
+
+    function updateQuestionTimesDisplay() {
+      let display = '<h3>Time Spent on Questions:</h3>';
+      questionTimes.forEach(q => {
+        display += `Question ${q.question}: ${formatTime(q.time)}<br>`;
+      });
+      document.getElementById('questionTimes').innerHTML = display;
+    }
+
+    function exportCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,Question,Time Spent\n";
+      questionTimes.forEach(q => {
+        csvContent += `${q.question},${formatTime(q.time)}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "quiz_times.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener('click', function(e) {
+      if (['BUTTON', 'INPUT'].includes(e.target.tagName)) return;
+      if (timeLeft <= 0 || isPaused) return;
+      if (!isRunning) startRound();
+      else stopRoundAndStartNext();
+    });
+
+    updateUI();
+  </script>
 </body>
 </html>
