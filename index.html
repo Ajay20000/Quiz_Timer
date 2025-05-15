@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Quiz Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(to bottom right, #fdfdfd, #e6f2ff);
-      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      font-family: 'Poppins', sans-serif;
       color: #333;
       display: flex;
       flex-direction: column;
@@ -15,115 +16,198 @@
       user-select: none;
       min-height: 100vh;
       margin: 0;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.5s, color 0.5s;
+      animation: fadeIn 1s ease-in-out;
+      position: relative;
     }
 
     body.dark-mode {
-      background: linear-gradient(to bottom right, #2c3e50, #1a252f);
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: #e0e0e0;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #headerContainer {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    #darkModeToggle {
+      font-size: 24px;
+      padding: 10px;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f6e05e, #ecc94b);
+      box-shadow: 0 0 10px rgba(246, 224, 94, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      order: 1;
+    }
+
+    body.dark-mode #darkModeToggle {
+      background: linear-gradient(135deg, #a0aec0, #718096);
+      box-shadow: 0 0 10px rgba(160, 174, 192, 0.5);
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #darkModeToggle.active {
+      animation: rotate 0.5s ease-in-out;
+    }
+
     h1 {
-      color: #004080;
-      margin-bottom: 10px;
+      color: #2b6cb0;
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1.2s ease-in-out;
+      text-align: center;
+      flex-grow: 1;
+      order: 2;
     }
 
     body.dark-mode h1 {
-      color: #66b3ff;
+      color: #63b3ed;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
 
-    #infoRibbon {
-      background: #e6f7ff;
-      color: #004080;
-      padding: 10px 20px;
-      border-radius: 4px;
+    #timeSetter {
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeIn 1.4s ease-in-out;
+    }
+
+    #timeSetter input {
+      padding: 10px;
       font-size: 16px;
-      margin-bottom: 15px;
-      text-align: center;
-      max-width: 600px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 70px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: #333;
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
     }
 
-    body.dark-mode #infoRibbon {
-      background: #34495e;
-      color: #b3d9ff;
+    body.dark-mode #timeSetter input {
+      background: rgba(0, 0, 0, 0.2);
+      color: #e0e0e0;
+    }
+
+    #timeSetter input:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba(43, 108, 176, 0.5);
+    }
+
+    #timerContainer {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 20px;
+      animation: fadeIn 1.6s ease-in-out;
     }
 
     #timer, #questionTimer {
       font-size: 36px;
-      font-weight: bold;
-      padding: 15px 25px;
-      border-radius: 8px;
-      background: #ffffff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      margin: 10px 0;
-      transition: background 0.3s, color 0.3s;
+      font-weight: 600;
+      padding: 20px 30px;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #e6f0fa, #ffffff);
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1), -5px -5px 15px rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease;
+    }
+
+    #timer:hover, #questionTimer:hover {
+      box-shadow: 0 0 15px rgba(43, 108, 176, 0.5);
     }
 
     #timer {
-      color: #0066cc;
+      color: #2b6cb0;
+      font-size: 28px;
     }
 
     #questionTimer {
-      font-size: 28px;
-      color: #0099cc;
+      color: #3182ce;
+      font-size: 40px;
+      background: linear-gradient(145deg, #bee3f8, #e6f7ff);
     }
 
     body.dark-mode #timer, body.dark-mode #questionTimer {
-      background: #34495e;
+      background: linear-gradient(145deg, #2d4a7e, #3b5998);
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3), -5px -5px 15px rgba(255, 255, 255, 0.1);
       color: #b3d9ff;
+    }
+
+    body.dark-mode #questionTimer {
+      background: linear-gradient(145deg, #3b5998, #4a6a8f);
+    }
+
+    #timerContainer div {
+      text-align: center;
+    }
+
+    #timerContainer div div:last-child {
+      font-size: 16px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    body.dark-mode #timerContainer div div:last-child {
+      color: #a0aec0;
+    }
+
+    #buttonContainer {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      animation: fadeIn 1.8s ease-in-out;
     }
 
     #status, #startMessage {
       font-size: 20px;
       margin: 10px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 2s ease-in-out;
     }
 
     #startMessage {
-      color: #cc0000;
+      color: #e53e3e;
     }
 
     body.dark-mode #startMessage {
-      color: #ff6666;
+      color: #f687b3;
     }
 
-    #timeSetter {
-      margin: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
+    .paused-label {
+      font-size: 18px;
+      color: #e53e3e;
+      margin-top: 10px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 2.2s ease-in-out;
     }
 
-    #timeSetter input {
-      padding: 8px;
-      font-size: 16px;
-      width: 60px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    #timeSetter button, #exportCsv, #exportPdf, #darkModeToggle, #pauseButton, #resetButton {
-      padding: 8px 15px;
-      font-size: 16px;
-      background-color: #007acc;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #timeSetter button:hover, #exportCsv:hover, #exportPdf:hover, #darkModeToggle:hover, #pauseButton:hover, #resetButton:hover {
-      background-color: #005fa3;
-    }
-
-    body.dark-mode #timeSetter button, body.dark-mode #exportCsv, body.dark-mode #exportPdf, body.dark-mode #darkModeToggle, body.dark-mode #pauseButton, body.dark-mode #resetButton {
-      background-color: #3399ff;
-    }
-
-    body.dark-mode #timeSetter button:hover, body.dark-mode #exportCsv:hover, body.dark-mode #exportPdf:hover, body.dark-mode #darkModeToggle:hover, body.dark-mode #pauseButton:hover, body.dark-mode #resetButton:hover {
-      background-color: #267acc;
+    body.dark-mode .paused-label {
+      color: #f687b3;
     }
 
     #questionTimes {
@@ -132,58 +216,106 @@
       width: 90%;
       max-width: 600px;
       text-align: left;
+      padding: 15px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 2.4s ease-in-out;
+    }
+
+    body.dark-mode #questionTimes {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    #questionTimes h3 {
+      margin: 0 0 10px 0;
+      color: #2b6cb0;
+    }
+
+    body.dark-mode #questionTimes h3 {
+      color: #63b3ed;
     }
 
     .question-entry {
-      padding: 8px;
-      border-bottom: 1px solid #ccc;
-      background: #f9f9f9;
-      border-radius: 4px;
-      margin: 5px 0;
+      padding: 10px;
+      border-radius: 10px;
+      background: #edf2f7;
+      margin: 8px 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .question-entry:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 
     body.dark-mode .question-entry {
-      background: #3c546b;
-      border-bottom: 1px solid #5a7896;
+      background: #2d4a7e;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
-    .paused-label {
-      font-size: 18px;
-      color: #cc0000;
-      margin-top: 10px;
+    #timeSetter button, #exportPdf, #pauseButton, #resetButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: linear-gradient(135deg, #4299e1, #3182ce);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
     }
 
-    body.dark-mode .paused-label {
-      color: #ff6666;
+    #timeSetter button:hover, #exportPdf:hover, #pauseButton:hover, #resetButton:hover {
+      background: linear-gradient(135deg, #3182ce, #2b6cb0);
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode #timeSetter button, body.dark-mode #exportPdf, body.dark-mode #pauseButton, body.dark-mode #resetButton {
+      background: linear-gradient(135deg, #63b3ed, #4299e1);
+    }
+
+    body.dark-mode #timeSetter button:hover, body.dark-mode #exportPdf:hover, body.dark-mode #pauseButton:hover, body.dark-mode #resetButton:hover {
+      background: linear-gradient(135deg, #4299e1, #3182ce);
     }
 
     @media (max-width: 600px) {
+      #timerContainer {
+        flex-direction: column;
+        gap: 10px;
+      }
+
       #timer, #questionTimer {
         font-size: 28px;
-        padding: 10px 20px;
+        padding: 15px 20px;
       }
 
       #questionTimer {
-        font-size: 24px;
+        font-size: 32px;
       }
 
       #status, #startMessage {
         font-size: 18px;
       }
 
-      #infoRibbon {
-        font-size: 14px;
-        padding: 8px 15px;
-      }
-
       #timeSetter input {
-        width: 50px;
+        width: 60px;
         font-size: 14px;
       }
 
-      #timeSetter button, #exportCsv, #exportPdf, #darkModeToggle, #pauseButton, #resetButton {
-        padding: 6px 12px;
+      #timeSetter button, #exportPdf, #pauseButton, #resetButton {
+        padding: 8px 15px;
         font-size: 14px;
+      }
+
+      #darkModeToggle {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
       }
 
       #questionTimes {
@@ -193,25 +325,38 @@
   </style>
 </head>
 <body>
-  <h1>Quiz Timer</h1>
-  <div id="infoRibbon">Click once to start or move to next question | Double-click to pause</div>
+  <div id="headerContainer">
+    <button id="darkModeToggle" onclick="toggleDarkMode()">☀️</button>
+    <h1>Quiz Timer</h1>
+  </div>
+
   <div id="timeSetter">
     Set Total Time: 
     <input type="number" id="minutesInput" min="1" placeholder="Minutes" value="30"> 
     <button onclick="setTotalTime()">Set Time</button>
-    <button id="darkModeToggle" onclick="toggleDarkMode()">Dark Mode</button>
+  </div>
+
+  <div id="timerContainer">
+    <div>
+      <div id="timer">30:00</div>
+      <div>Total Time</div>
+    </div>
+    <div>
+      <div id="questionTimer">00:00</div>
+      <div>Current Question Timer</div>
+    </div>
+  </div>
+
+  <div id="buttonContainer">
     <button id="pauseButton" onclick="togglePause()">Pause</button>
     <button id="resetButton" onclick="resetTimer()">Reset</button>
   </div>
 
-  <div id="timer">30:00</div>
-  <div id="questionTimer">00:00</div>
   <div id="status">Click anywhere to begin</div>
   <div id="startMessage">Waiting to start...</div>
   <div id="pausedLabel" class="paused-label" style="display:none;">Paused - Click anywhere to resume</div>
   <div id="questionTimes"></div>
   <div style="margin-top: 20px;">
-    <button id="exportCsv" onclick="exportToCsv()">Export CSV</button>
     <button id="exportPdf" onclick="exportToPdf()">Export PDF</button>
   </div>
 
@@ -331,7 +476,7 @@
     }
 
     function updateQuestionTimesDisplay() {
-      let html = '<h3>Question Times:</h3>';
+      let html = '<h3>Each Question Times:</h3>';
       questionTimes.forEach(q => {
         html += `<div class="question-entry">Question ${q.question}: ${formatTime(q.time)}</div>`;
       });
@@ -339,27 +484,11 @@
     }
 
     function toggleDarkMode() {
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      darkModeToggle.classList.add('active');
       document.body.classList.toggle('dark-mode');
       localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-      document.getElementById('darkModeToggle').textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
-    }
-
-    function exportToCsv() {
-      if (questionTimes.length === 0) {
-        alert('No question times to export.');
-        return;
-      }
-      let csv = 'Question,Time\n';
-      questionTimes.forEach(q => {
-        csv += `${q.question},${formatTime(q.time)}\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'quiz_times.csv';
-      a.click();
-      URL.revokeObjectURL(url);
+      darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     }
 
     function exportToPdf() {
@@ -398,20 +527,12 @@
       }
     });
 
-    document.addEventListener('dblclick', function(e) {
-      if (['INPUT', 'BUTTON'].includes(e.target.tagName)) return;
-      if (isRunning) {
-        isPaused = true;
-        document.getElementById('pausedLabel').style.display = 'block';
-        document.getElementById('status').textContent = 'Paused';
-        document.getElementById('pauseButton').textContent = 'Resume';
-      }
-    });
-
     // Initialize dark mode from localStorage
     if (localStorage.getItem('darkMode') === 'true') {
       document.body.classList.add('dark-mode');
-      document.getElementById('darkModeToggle').textContent = 'Light Mode';
+      document.getElementById('darkModeToggle').textContent = '☀️';
+    } else {
+      document.getElementById('darkModeToggle').textContent = '🌙';
     }
 
     // Initialize
