@@ -8,7 +8,7 @@
             flex-direction: column;
             align-items: center;
             font-family: Arial, sans-serif;
-            user-select: none;
+            user-select: none; /* Prevent text selection on click */
         }
         #timer {
             font-size: 48px;
@@ -73,33 +73,36 @@
     <button id="emergencyStop" onclick="toggleEmergencyStop()">Emergency Stop</button>
     <div id="questionTimes"></div>
     <script>
-        let totalTime = 30 * 60;
+        let totalTime = 30 * 60; // Default 30 minutes in seconds
         let timeLeft = totalTime;
         let isRunning = false;
         let isEmergencyStopped = false;
         let timerInterval = null;
         let questionNumber = 0;
         let questionElapsedTime = 0;
-        let questionTimes = [];
+        let questionTimes = []; // Store time spent on each question
 
         function formatTime(seconds) {
             let mins = Math.floor(seconds / 60);
             let secs = seconds % 60;
-            return \`\${mins.toString().padStart(2, '0')}:\${secs.toString().padStart(2, '0')}\`;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
         function setTotalTime() {
+            // Always allow setting time, reset everything
             let minutes = parseInt(document.getElementById('minutesInput').value);
             if (isNaN(minutes) || minutes < 1) {
                 alert('Please enter a valid number of minutes (minimum 1).');
                 return;
             }
 
+            // Clear any existing timer
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
 
+            // Reset all state
             totalTime = minutes * 60;
             timeLeft = totalTime;
             isRunning = false;
@@ -108,6 +111,7 @@
             questionElapsedTime = 0;
             questionTimes = [];
 
+            // Update UI
             document.getElementById('timer').textContent = formatTime(timeLeft);
             document.getElementById('questionTimer').textContent = '00:00';
             document.getElementById('status').textContent = 'Click to start first question';
@@ -132,9 +136,11 @@
                 return;
             }
 
+            // Update total timer (countdown)
             document.getElementById('timer').textContent = formatTime(timeLeft);
             timeLeft--;
 
+            // Update question timer (count up)
             if (isRunning) {
                 questionElapsedTime++;
                 document.getElementById('questionTimer').textContent = formatTime(questionElapsedTime);
@@ -142,13 +148,13 @@
         }
 
         function startRound() {
-            if (timeLeft <= 0 || isEmergencyStopped) return;
+            if (timeLeft <= 0 || isEmergencyStopped) return; // Don't start if time is up or emergency stopped
 
             questionNumber++;
             isRunning = true;
-            questionElapsedTime = 0;
-            document.getElementById('questionTimer').textContent = '00:01';
-            document.getElementById('status').textContent = \`Question \${questionNumber} Running\`;
+            questionElapsedTime = 0; // Reset question timer
+            document.getElementById('questionTimer').textContent = '00:01'; // Start from 1 second
+            document.getElementById('status').textContent = `Question ${questionNumber} Running`;
             document.getElementById('startMessage').style.display = 'none';
             if (!timerInterval) {
                 timerInterval = setInterval(updateTimer, 1000);
@@ -156,20 +162,22 @@
         }
 
         function stopRoundAndStartNext() {
-            if (!isRunning || isEmergencyStopped) return;
+            if (!isRunning || isEmergencyStopped) return; // Ignore if not running or emergency stopped
 
             let timeSpent = questionElapsedTime;
             questionTimes.push({ question: questionNumber, time: timeSpent });
             updateQuestionTimesDisplay();
-            document.getElementById('questionTimer').textContent = '00:00';
+            document.getElementById('questionTimer').textContent = '00:00'; // Reset question timer display
 
+            // Immediately start the next round
             startRound();
         }
 
         function toggleEmergencyStop() {
-            if (timeLeft <= 0) return;
+            if (timeLeft <= 0) return; // Ignore if time is up
 
             if (!isEmergencyStopped) {
+                // Stop the quiz
                 if (isRunning) {
                     clearInterval(timerInterval);
                     timerInterval = null;
@@ -180,9 +188,10 @@
                 document.getElementById('emergencyStop').textContent = 'Resume Quiz';
                 document.getElementById('startMessage').style.display = 'none';
             } else {
+                // Resume the quiz
                 isEmergencyStopped = false;
                 document.getElementById('emergencyStop').textContent = 'Emergency Stop';
-                document.getElementById('status').textContent = \`Question \${questionNumber} Stopped. Click to start Question \${questionNumber + 1}\`;
+                document.getElementById('status').textContent = `Question ${questionNumber} Stopped. Click to start Question ${questionNumber + 1}`;
                 document.getElementById('startMessage').textContent = 'Click to start next question!';
                 document.getElementById('startMessage').style.display = 'block';
             }
@@ -191,14 +200,16 @@
         function updateQuestionTimesDisplay() {
             let display = '<h3>Time Spent on Questions:</h3>';
             questionTimes.forEach(q => {
-                display += \`Question \${q.question}: \${formatTime(q.time)}<br>\`;
+                display += `Question ${q.question}: ${formatTime(q.time)}<br>`;
             });
             document.getElementById('questionTimes').innerHTML = display;
         }
 
+        // Handle screen clicks for question timing
         document.addEventListener('click', function(e) {
+            // Ignore clicks on buttons and input
             if (e.target.id === 'minutesInput' || e.target.tagName === 'BUTTON') return;
-            if (timeLeft <= 0 || isEmergencyStopped) return;
+            if (timeLeft <= 0 || isEmergencyStopped) return; // Ignore if time is up or emergency stopped
 
             if (!isRunning) {
                 startRound();
@@ -207,6 +218,7 @@
             }
         });
 
+        // Initialize display
         document.getElementById('timer').textContent = formatTime(timeLeft);
         document.getElementById('questionTimer').textContent = '00:00';
     </script>
