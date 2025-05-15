@@ -1,139 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Quiz Timer</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500&display=swap');
-
     body {
-      margin: 0;
-      padding: 40px 20px;
-      font-family: 'Manrope', sans-serif;
-      background: linear-gradient(to top right, #fdfdfd, #f5faff);
-      color: #2b2b2b;
+      background: linear-gradient(to bottom right, #fdfdfd, #e6f2ff);
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 20px;
+      user-select: none;
+      min-height: 100vh;
+      margin: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(to bottom right, #2c3e50, #1a252f);
+      color: #e0e0e0;
     }
 
     h1 {
-      font-size: 2.2rem;
-      margin-bottom: 30px;
-      color: #444;
+      color: #004080;
+      margin-bottom: 10px;
     }
 
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-      padding: 30px;
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
-      margin-bottom: 25px;
+    body.dark-mode h1 {
+      color: #66b3ff;
     }
 
-    input[type="number"] {
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 80px;
-      margin-right: 10px;
-    }
-
-    button {
+    #infoRibbon {
+      background: #e6f7ff;
+      color: #004080;
       padding: 10px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      background: #4e89ff;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-      margin: 5px;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      text-align: center;
+      max-width: 600px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    button:hover {
-      background: #3366ff;
+    body.dark-mode #infoRibbon {
+      background: #34495e;
+      color: #b3d9ff;
     }
 
     #timer, #questionTimer {
-      font-size: 42px;
-      margin: 15px 0;
+      font-size: 36px;
       font-weight: bold;
+      padding: 15px 25px;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 10px 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    #timer {
+      color: #0066cc;
     }
 
     #questionTimer {
-      font-size: 32px;
-      color: #4e89ff;
+      font-size: 28px;
+      color: #0099cc;
+    }
+
+    body.dark-mode #timer, body.dark-mode #questionTimer {
+      background: #34495e;
+      color: #b3d9ff;
     }
 
     #status, #startMessage {
-      font-size: 18px;
-      margin: 10px 0;
-      color: #555;
+      font-size: 20px;
+      margin: 10px;
     }
 
     #startMessage {
-      color: #ff6b81;
+      color: #cc0000;
     }
 
-    #questionTimes {
-      margin-top: 30px;
-      font-size: 16px;
-      text-align: left;
-      max-width: 500px;
-      width: 100%;
-      color: #333;
-      line-height: 1.6;
+    body.dark-mode #startMessage {
+      color: #ff6666;
     }
 
-    .buttonRow {
+    #timeSetter {
+      margin: 15px;
       display: flex;
+      align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
-    @media (max-width: 500px) {
-      h1 {
-        font-size: 1.6rem;
-      }
+    #timeSetter input {
+      padding: 8px;
+      font-size: 16px;
+      width: 60px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
 
+    #timeSetter button, #exportCsv, #exportPdf, #darkModeToggle, #pauseButton, #resetButton {
+      padding: 8px 15px;
+      font-size: 16px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #timeSetter button:hover, #exportCsv:hover, #exportPdf:hover, #darkModeToggle:hover, #pauseButton:hover, #resetButton:hover {
+      background-color: #005fa3;
+    }
+
+    body.dark-mode #timeSetter button, body.dark-mode #exportCsv, body.dark-mode #exportPdf, body.dark-mode #darkModeToggle, body.dark-mode #pauseButton, body.dark-mode #resetButton {
+      background-color: #3399ff;
+    }
+
+    body.dark-mode #timeSetter button:hover, body.dark-mode #exportCsv:hover, body.dark-mode #exportPdf:hover, body.dark-mode #darkModeToggle:hover, body.dark-mode #pauseButton:hover, body.dark-mode #resetButton:hover {
+      background-color: #267acc;
+    }
+
+    #questionTimes {
+      margin-top: 20px;
+      font-size: 18px;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+    }
+
+    .question-entry {
+      padding: 8px;
+      border-bottom: 1px solid #ccc;
+      background: #f9f9f9;
+      border-radius: 4px;
+      margin: 5px 0;
+    }
+
+    body.dark-mode .question-entry {
+      background: #3c546b;
+      border-bottom: 1px solid #5a7896;
+    }
+
+    .paused-label {
+      font-size: 18px;
+      color: #cc0000;
+      margin-top: 10px;
+    }
+
+    body.dark-mode .paused-label {
+      color: #ff6666;
+    }
+
+    @media (max-width: 600px) {
       #timer, #questionTimer {
-        font-size: 30px;
+        font-size: 28px;
+        padding: 10px 20px;
       }
 
-      input[type="number"] {
-        width: 60px;
+      #questionTimer {
+        font-size: 24px;
+      }
+
+      #status, #startMessage {
+        font-size: 18px;
+      }
+
+      #infoRibbon {
+        font-size: 14px;
+        padding: 8px 15px;
+      }
+
+      #timeSetter input {
+        width: 50px;
+        font-size: 14px;
+      }
+
+      #timeSetter button, #exportCsv, #exportPdf, #darkModeToggle, #pauseButton, #resetButton {
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+
+      #questionTimes {
+        font-size: 16px;
       }
     }
   </style>
 </head>
 <body>
   <h1>Quiz Timer</h1>
-
-  <div class="card" id="timeSetter">
-    <label for="minutesInput">Set Total Time:</label><br/><br/>
-    <input type="number" id="minutesInput" min="1" value="30" /> 
+  <div id="infoRibbon">Click once to start or move to next question | Double-click to pause</div>
+  <div id="timeSetter">
+    Set Total Time: 
+    <input type="number" id="minutesInput" min="1" placeholder="Minutes" value="30"> 
     <button onclick="setTotalTime()">Set Time</button>
+    <button id="darkModeToggle" onclick="toggleDarkMode()">Dark Mode</button>
+    <button id="pauseButton" onclick="togglePause()">Pause</button>
+    <button id="resetButton" onclick="resetTimer()">Reset</button>
   </div>
 
   <div id="timer">30:00</div>
   <div id="questionTimer">00:00</div>
-  <div id="status">Set time and click to start first question</div>
-  <div id="startMessage">Click anywhere to begin!</div>
-
-  <div class="buttonRow">
-    <button onclick="togglePause()">Pause</button>
-    <button onclick="resetTimer()">Reset</button>
-    <button onclick="exportCSV()">Export Report</button>
+  <div id="status">Click anywhere to begin</div>
+  <div id="startMessage">Waiting to start...</div>
+  <div id="pausedLabel" class="paused-label" style="display:none;">Paused - Click anywhere to resume</div>
+  <div id="questionTimes"></div>
+  <div style="margin-top: 20px;">
+    <button id="exportCsv" onclick="exportToCsv()">Export CSV</button>
+    <button id="exportPdf" onclick="exportToPdf()">Export PDF</button>
   </div>
 
-  <div id="questionTimes"></div>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     let totalTime = 30 * 60;
     let timeLeft = totalTime;
@@ -144,124 +226,195 @@
     let questionElapsedTime = 0;
     let questionTimes = [];
 
+    const switchSound = new Audio('https://www.soundjay.com/buttons/switch-10.mp3');
+    const timeoutSound = new Audio('https://www.soundjay.com/misc/alarm-01.mp3');
+
     function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      let mins = Math.floor(seconds / 60);
+      let secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
     function setTotalTime() {
-      const minutes = parseInt(document.getElementById('minutesInput').value);
-      if (isNaN(minutes) || minutes < 1) return alert("Enter valid time");
+      let minutes = parseInt(document.getElementById('minutesInput').value);
+      if (isNaN(minutes) || minutes < 1) {
+        alert('Please enter a valid number of minutes.');
+        return;
+      }
 
-      clearInterval(timerInterval);
+      if (timerInterval) clearInterval(timerInterval);
+
       totalTime = minutes * 60;
       timeLeft = totalTime;
       isRunning = false;
       isPaused = false;
-      timerInterval = null;
       questionNumber = 0;
       questionElapsedTime = 0;
       questionTimes = [];
 
       updateUI();
+    }
+
+    function resetTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      totalTime = 30 * 60;
+      timeLeft = totalTime;
+      isRunning = false;
+      isPaused = false;
+      questionNumber = 0;
+      questionElapsedTime = 0;
+      questionTimes = [];
+      document.getElementById('minutesInput').value = 30;
+      updateUI();
+    }
+
+    function togglePause() {
+      if (!isRunning) return;
+      isPaused = !isPaused;
+      document.getElementById('pausedLabel').style.display = isPaused ? 'block' : 'none';
+      document.getElementById('status').textContent = isPaused ? 'Paused' : `Question ${questionNumber} Running`;
+      document.getElementById('pauseButton').textContent = isPaused ? 'Resume' : 'Pause';
+      if (!isPaused) switchSound.play();
     }
 
     function updateUI() {
       document.getElementById('timer').textContent = formatTime(timeLeft);
       document.getElementById('questionTimer').textContent = '00:00';
-      document.getElementById('status').textContent = 'Set time and click to start first question';
-      document.getElementById('startMessage').textContent = 'Click anywhere to begin!';
+      document.getElementById('status').textContent = 'Click anywhere to begin';
+      document.getElementById('startMessage').textContent = 'Waiting to start...';
+      document.getElementById('pausedLabel').style.display = 'none';
       document.getElementById('questionTimes').innerHTML = '';
+      document.getElementById('pauseButton').textContent = 'Pause';
     }
 
     function updateTimer() {
-      if (!isPaused && timeLeft > 0) {
-        timeLeft--;
-        document.getElementById('timer').textContent = formatTime(timeLeft);
-        if (isRunning) {
-          questionElapsedTime++;
-          document.getElementById('questionTimer').textContent = formatTime(questionElapsedTime);
-        }
-      }
+      if (isPaused || !isRunning) return;
 
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
+        timerInterval = null;
         document.getElementById('timer').textContent = '00:00';
-        document.getElementById('status').textContent = 'Time Up!';
+        document.getElementById('questionTimer').textContent = '00:00';
+        document.getElementById('status').textContent = 'Time’s up!';
+        document.getElementById('startMessage').style.display = 'none';
+        isRunning = false;
+        timeoutSound.play();
+        document.getElementById('pauseButton').textContent = 'Pause';
+        return;
       }
+
+      timeLeft--;
+      questionElapsedTime++;
+
+      document.getElementById('timer').textContent = formatTime(timeLeft);
+      document.getElementById('questionTimer').textContent = formatTime(questionElapsedTime);
     }
 
     function startRound() {
-      if (timeLeft <= 0 || isPaused) return;
-
       questionNumber++;
       isRunning = true;
       questionElapsedTime = 0;
-
-      document.getElementById('questionTimer').textContent = '00:01';
       document.getElementById('status').textContent = `Question ${questionNumber} Running`;
       document.getElementById('startMessage').style.display = 'none';
+      document.getElementById('pausedLabel').style.display = 'none';
 
-      if (!timerInterval) timerInterval = setInterval(updateTimer, 1000);
+      if (!timerInterval) {
+        timerInterval = setInterval(updateTimer, 1000);
+      }
+      switchSound.play();
     }
 
     function stopRoundAndStartNext() {
-      if (!isRunning || isPaused) return;
-
       questionTimes.push({ question: questionNumber, time: questionElapsedTime });
       updateQuestionTimesDisplay();
-      isRunning = false;
-      document.getElementById('questionTimer').textContent = '00:00';
       startRound();
     }
 
-    function togglePause() {
-      isPaused = !isPaused;
-      document.querySelector('button[onclick="togglePause()"]').textContent = isPaused ? 'Resume' : 'Pause';
-      document.getElementById('status').textContent = isPaused ? 'Paused' : `Question ${questionNumber} Running`;
-    }
-
-    function resetTimer() {
-      clearInterval(timerInterval);
-      timeLeft = totalTime;
-      isRunning = false;
-      isPaused = false;
-      questionNumber = 0;
-      questionElapsedTime = 0;
-      questionTimes = [];
-      updateUI();
-    }
-
     function updateQuestionTimesDisplay() {
-      let display = '<h3>Time Spent on Questions:</h3>';
+      let html = '<h3>Question Times:</h3>';
       questionTimes.forEach(q => {
-        display += `Question ${q.question}: ${formatTime(q.time)}<br>`;
+        html += `<div class="question-entry">Question ${q.question}: ${formatTime(q.time)}</div>`;
       });
-      document.getElementById('questionTimes').innerHTML = display;
+      document.getElementById('questionTimes').innerHTML = html;
     }
 
-    function exportCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,Question,Time Spent\n";
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+      document.getElementById('darkModeToggle').textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+    }
+
+    function exportToCsv() {
+      if (questionTimes.length === 0) {
+        alert('No question times to export.');
+        return;
+      }
+      let csv = 'Question,Time\n';
       questionTimes.forEach(q => {
-        csvContent += `${q.question},${formatTime(q.time)}\n`;
+        csv += `${q.question},${formatTime(q.time)}\n`;
       });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "quiz_times.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'quiz_times.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportToPdf() {
+      if (questionTimes.length === 0) {
+        alert('No question times to export.');
+        return;
+      }
+      const element = document.getElementById('questionTimes');
+      const opt = {
+        margin: 1,
+        filename: 'quiz_times.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
     }
 
     document.addEventListener('click', function(e) {
-      if (['BUTTON', 'INPUT'].includes(e.target.tagName)) return;
-      if (timeLeft <= 0 || isPaused) return;
-      if (!isRunning) startRound();
-      else stopRoundAndStartNext();
+      if (['INPUT', 'BUTTON'].includes(e.target.tagName)) return;
+      if (timeLeft <= 0) return;
+
+      if (isPaused) {
+        isPaused = false;
+        document.getElementById('pausedLabel').style.display = 'none';
+        document.getElementById('status').textContent = isRunning ? `Question ${questionNumber} Running` : 'Click to Start';
+        document.getElementById('pauseButton').textContent = 'Pause';
+        switchSound.play();
+        return;
+      }
+
+      if (!isRunning) {
+        startRound();
+      } else {
+        stopRoundAndStartNext();
+      }
     });
 
+    document.addEventListener('dblclick', function(e) {
+      if (['INPUT', 'BUTTON'].includes(e.target.tagName)) return;
+      if (isRunning) {
+        isPaused = true;
+        document.getElementById('pausedLabel').style.display = 'block';
+        document.getElementById('status').textContent = 'Paused';
+        document.getElementById('pauseButton').textContent = 'Resume';
+      }
+    });
+
+    // Initialize dark mode from localStorage
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      document.getElementById('darkModeToggle').textContent = 'Light Mode';
+    }
+
+    // Initialize
     updateUI();
   </script>
 </body>
