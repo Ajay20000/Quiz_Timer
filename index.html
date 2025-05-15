@@ -40,7 +40,7 @@
       margin-bottom: 20px;
     }
 
-    #darkModeToggle {
+    #darkModeToggle, #helpButton {
       font-size: 24px;
       padding: 10px;
       width: 50px;
@@ -49,10 +49,13 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      background: linear-gradient(135deg, #f6e05e, #ecc94b);
-      box-shadow: 0 0 10px rgba(246, 224, 94, 0.5);
       cursor: pointer;
       transition: all 0.3s ease;
+    }
+
+    #darkModeToggle {
+      background: linear-gradient(135deg, #f6e05e, #ecc94b);
+      box-shadow: 0 0 10px rgba(246, 224, 94, 0.5);
       order: 1;
     }
 
@@ -70,6 +73,22 @@
       animation: rotate 0.5s ease-in-out;
     }
 
+    #helpButton {
+      background: linear-gradient(135deg, #68d391, #48bb78);
+      box-shadow: 0 0 10px rgba(104, 211, 145, 0.5);
+      order: 3;
+    }
+
+    body.dark-mode #helpButton {
+      background: linear-gradient(135deg, #9ae6b4, #68d391);
+      box-shadow: 0 0 10px rgba(154, 230, 180, 0.5);
+    }
+
+    #helpButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(104, 211, 145, 0.7);
+    }
+
     h1 {
       color: #2b6cb0;
       margin: 0;
@@ -84,6 +103,67 @@
     body.dark-mode h1 {
       color: #63b3ed;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    #helpModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #helpContent {
+      background: linear-gradient(145deg, #e6f0fa, #ffffff);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    body.dark-mode #helpContent {
+      background: linear-gradient(145deg, #2d4a7e, #3b5998);
+      color: #e0e0e0;
+    }
+
+    #closeHelp {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #e53e3e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    #closeHelp:hover {
+      background: rgba(229, 62, 62, 0.3);
+      transform: scale(1.1);
+    }
+
+    body.dark-mode #closeHelp {
+      color: #f687b3;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode #closeHelp:hover {
+      background: rgba(246, 135, 179, 0.3);
     }
 
     #timeSetter {
@@ -312,7 +392,7 @@
         font-size: 14px;
       }
 
-      #darkModeToggle {
+      #darkModeToggle, #helpButton {
         width: 40px;
         height: 40px;
         font-size: 20px;
@@ -328,6 +408,23 @@
   <div id="headerContainer">
     <button id="darkModeToggle" onclick="toggleDarkMode()">☀️</button>
     <h1>Quiz Timer</h1>
+    <button id="helpButton" onclick="showHelp()">❓</button>
+  </div>
+
+  <div id="helpModal">
+    <div id="helpContent">
+      <button id="closeHelp" onclick="closeHelp()">×</button>
+      <h2>Quiz Timer Features</h2>
+      <p><strong>Dark/Light Mode:</strong> Toggle between dark and light themes using the ☀️/🌙 icon in the top-left.</p>
+      <p><strong>Set Total Time:</strong> Enter the total quiz duration in minutes and click "Set Time" to start with a custom time.</p>
+      <p><strong>Total Timer:</strong> Displays the remaining time for the entire quiz.</p>
+      <p><strong>Current Question Timer:</strong> Tracks the time spent on the current question.</p>
+      <p><strong>Start/Next Question:</strong> Click anywhere (except buttons or input) to start the timer or move to the next question.</p>
+      <p><strong>Pause/Resume:</strong> Use the "Pause" button to pause the timer; click "Resume" or anywhere to continue.</p>
+      <p><strong>Reset:</strong> Click the "Reset" button to reset all timers and question times to their initial state.</p>
+      <p><strong>Each Question Times:</strong> Lists the time spent on each question after moving to the next one.</p>
+      <p><strong>Export PDF:</strong> Export the question times list as a PDF file for record-keeping.</p>
+    </div>
   </div>
 
   <div id="timeSetter">
@@ -387,7 +484,10 @@
         return;
       }
 
-      if (timerInterval) clearInterval(timerInterval);
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
 
       totalTime = minutes * 60;
       timeLeft = totalTime;
@@ -401,7 +501,13 @@
     }
 
     function resetTimer() {
-      if (timerInterval) clearInterval(timerInterval);
+      // Clear any existing interval
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
+      // Reset all states
       totalTime = 30 * 60;
       timeLeft = totalTime;
       isRunning = false;
@@ -410,6 +516,8 @@
       questionElapsedTime = 0;
       questionTimes = [];
       document.getElementById('minutesInput').value = 30;
+
+      // Reset UI
       updateUI();
     }
 
@@ -507,8 +615,24 @@
       html2pdf().from(element).set(opt).save();
     }
 
+    function showHelp() {
+      document.getElementById('helpModal').style.display = 'flex';
+    }
+
+    function closeHelp() {
+      document.getElementById('helpModal').style.display = 'none';
+    }
+
     document.addEventListener('click', function(e) {
-      if (['INPUT', 'BUTTON'].includes(e.target.tagName)) return;
+      // Close help modal if clicking outside the content
+      if (e.target === document.getElementById('helpModal')) {
+        closeHelp();
+        return;
+      }
+
+      // Ignore clicks on inputs, buttons, or within the help modal content
+      if (['INPUT', 'BUTTON'].includes(e.target.tagName) || e.target.closest('#helpContent')) return;
+
       if (timeLeft <= 0) return;
 
       if (isPaused) {
