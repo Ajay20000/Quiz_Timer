@@ -387,7 +387,7 @@
         font-size: 14px;
       }
 
-      #timeSetter button, #exportPdf, #pauseButton, #resetButton {
+      #timeSetter button,部分: #exportPdf, #pauseButton, #resetButton {
         padding: 8px 15px;
         font-size: 14px;
       }
@@ -416,9 +416,9 @@
       <button id="closeHelp" onclick="closeHelp()">×</button>
       <h2>Quiz Timer Features</h2>
       <p><strong>Dark/Light Mode:</strong> Toggle between dark and light themes using the ☀️/🌙 icon in the top-left.</p>
-      <p><strong>Set Total Time:</strong> Enter the total quiz duration in minutes and click "Set Time" to start with a custom time.</p>
-      <p><strong>Total Timer:</strong> Displays the remaining time for the entire quiz.</p>
-      <p><strong>Current Question Timer:</strong> Tracks the time spent on the current question.</p>
+      <p><strong>Set Total Time:</strong> Enter the total quiz duration in hours and minutes and click "Set Time" to start with a custom time.</p>
+      <p><strong>Total Timer:</strong> Displays the remaining time for the entire quiz in hours and minutes.</p>
+      <p><strong>Current Question Timer:</strong> Tracks the time spent on the current question in minutes and seconds.</p>
       <p><strong>Start/Next Question:</strong> Click anywhere (except buttons or input) to start the timer or move to the next question.</p>
       <p><strong>Pause/Resume:</strong> Use the "Pause" button to pause the timer; click "Resume" or anywhere to continue.</p>
       <p><strong>Reset:</strong> Click the "Reset" button to reset all timers and question times to their initial state.</p>
@@ -429,13 +429,14 @@
 
   <div id="timeSetter">
     Set Total Time: 
-    <input type="number" id="minutesInput" min="1" placeholder="Minutes" value="30"> 
+    <input type="number" id="hoursInput" min="0" placeholder="Hours" value="0"> 
+    <input type="number" id="minutesInput" min="0" max="59" placeholder="Minutes" value="30"> 
     <button onclick="setTotalTime()">Set Time</button>
   </div>
 
   <div id="timerContainer">
     <div>
-      <div id="timer">30:00</div>
+      <div id="timer">00:30</div>
       <div>Total Time</div>
     </div>
     <div>
@@ -471,16 +472,23 @@
     const switchSound = new Audio('switch-10.mp3');
     const timeoutSound = new Audio('alarm-01.mp3');
 
-    function formatTime(seconds) {
-      let mins = Math.floor(seconds / 60);
-      let secs = seconds % 60;
-      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    function formatTime(seconds, isTotalTimer = false) {
+      if (isTotalTimer) {
+        let hours = Math.floor(seconds / 3600);
+        let mins = Math.floor((seconds % 3600) / 60);
+        return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+      } else {
+        let mins = Math.floor(seconds / 60);
+        let secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
     }
 
     function setTotalTime() {
-      let minutes = parseInt(document.getElementById('minutesInput').value);
-      if (isNaN(minutes) || minutes < 1) {
-        alert('Please enter a valid number of minutes.');
+      let hours = parseInt(document.getElementById('hoursInput').value) || 0;
+      let minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+      if (hours < 0 || minutes < 0 || minutes > 59 || (hours === 0 && minutes === 0)) {
+        alert('Please enter valid hours (0 or more) and minutes (0-59). Total time must be at least 1 minute.');
         return;
       }
 
@@ -489,7 +497,7 @@
         timerInterval = null;
       }
 
-      totalTime = minutes * 60;
+      totalTime = (hours * 3600) + (minutes * 60);
       timeLeft = totalTime;
       isRunning = false;
       isPaused = false;
@@ -501,13 +509,11 @@
     }
 
     function resetTimer() {
-      // Clear any existing interval
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
       }
 
-      // Reset all states
       totalTime = 30 * 60;
       timeLeft = totalTime;
       isRunning = false;
@@ -515,9 +521,9 @@
       questionNumber = 0;
       questionElapsedTime = 0;
       questionTimes = [];
+      document.getElementById('hoursInput').value = 0;
       document.getElementById('minutesInput').value = 30;
 
-      // Reset UI
       updateUI();
     }
 
@@ -531,8 +537,8 @@
     }
 
     function updateUI() {
-      document.getElementById('timer').textContent = formatTime(timeLeft);
-      document.getElementById('questionTimer').textContent = '00:00';
+      document.getElementById('timer').textContent = formatTime(timeLeft, true);
+      document.getElementById('questionTimer').textContent = formatTime(0);
       document.getElementById('status').textContent = 'Click anywhere to begin';
       document.getElementById('startMessage').textContent = 'Waiting to start...';
       document.getElementById('pausedLabel').style.display = 'none';
@@ -546,8 +552,8 @@
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
         timerInterval = null;
-        document.getElementById('timer').textContent = '00:00';
-        document.getElementById('questionTimer').textContent = '00:00';
+        document.getElementById('timer').textContent = formatTime(0, true);
+        document.getElementById('questionTimer').textContent = formatTime(0);
         document.getElementById('status').textContent = 'Time’s up!';
         document.getElementById('startMessage').style.display = 'none';
         isRunning = false;
@@ -559,7 +565,7 @@
       timeLeft--;
       questionElapsedTime++;
 
-      document.getElementById('timer').textContent = formatTime(timeLeft);
+      document.getElementById('timer').textContent = formatTime(timeLeft, true);
       document.getElementById('questionTimer').textContent = formatTime(questionElapsedTime);
     }
 
@@ -624,13 +630,11 @@
     }
 
     document.addEventListener('click', function(e) {
-      // Close help modal if clicking outside the content
       if (e.target === document.getElementById('helpModal')) {
         closeHelp();
         return;
       }
 
-      // Ignore clicks on inputs, buttons, or within the help modal content
       if (['INPUT', 'BUTTON'].includes(e.target.tagName) || e.target.closest('#helpContent')) return;
 
       if (timeLeft <= 0) return;
@@ -651,7 +655,6 @@
       }
     });
 
-    // Initialize dark mode from localStorage
     if (localStorage.getItem('darkMode') === 'true') {
       document.body.classList.add('dark-mode');
       document.getElementById('darkModeToggle').textContent = '☀️';
@@ -659,7 +662,6 @@
       document.getElementById('darkModeToggle').textContent = '🌙';
     }
 
-    // Initialize
     updateUI();
   </script>
 </body>
