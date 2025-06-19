@@ -1,73 +1,565 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Quiz Timer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #2b6cb0;
+      --primary-gradient: linear-gradient(135deg, #4299e1, #3182ce);
+      --dark-primary-gradient: linear-gradient(135deg, #63b3ed, #4299e1);
+      --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.1);
+      --shadow-dark: 0 5px 15px rgba(0, 0, 0, 0.3);
+      --danger-gradient: linear-gradient(135deg, #e53e3e, #c53030);
+      --dark-danger-gradient: linear-gradient(135deg, #f687b3, #e53e3e);
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f0f8ff;
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      font-family: 'Poppins', sans-serif;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      user-select: none;
+      min-height: 100vh;
+      margin: 0;
+      transition: background 0.5s, color 0.5s;
+      animation: fadeIn 1s ease-in-out;
+      position: relative;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #e0e0e0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #headerContainer {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    #darkModeToggle, #helpButton {
+      font-size: 24px;
+      padding: 10px;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #darkModeToggle {
+      background: linear-gradient(135deg, #f6e05e, #ecc94b);
+      box-shadow: 0 0 10px rgba(246, 224, 94, 0.5);
+      order: 1;
+    }
+
+    body.dark-mode #darkModeToggle {
+      background: linear-gradient(135deg, #a0aec0, #718096);
+      box-shadow: 0 0 10px rgba(160, 174, 192, 0.5);
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #darkModeToggle.active {
+      animation: rotate 0.5s ease-in-out;
+    }
+
+    #helpButton {
+      background: linear-gradient(135deg, #68d391, #48bb78);
+      box-shadow: 0 0 10px rgba(104, 211, 145, 0.5);
+      order: 3;
+    }
+
+    body.dark-mode #helpButton {
+      background: linear-gradient(135deg, #9ae6b4, #68d391);
+      box-shadow: 0 0 10px rgba(154, 230, 180, 0.5);
+    }
+
+    #helpButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(104, 211, 145, 0.7);
+    }
+
+    h1 {
+      color: var(--primary-color);
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1.2s ease-in-out;
+      text-align: center;
+      flex-grow: 1;
+      order: 2;
+    }
+
+    body.dark-mode h1 {
+      color: #63b3ed;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    #helpModal, #recordsModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #helpContent, #recordsContent {
+      background: linear-gradient(145deg, #e6f0fa, #ffffff);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-light);
+      position: relative;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    body.dark-mode #helpContent, body.dark-mode #recordsContent {
+      background: linear-gradient(145deg, #2d4a7e, #3b5998);
+      color: #e0e0e0;
+      box-shadow: var(--shadow-dark);
+    }
+
+    #closeHelp, #closeRecords {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #e53e3e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    #closeHelp:hover, #closeRecords:hover {
+      background: rgba(229, 62, 62, 0.3);
+      transform: scale(1.1);
+    }
+
+    body.dark-mode #closeHelp, body.dark-mode #closeRecords {
+      color: #f687b3;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode #closeHelp:hover, body.dark-mode #closeRecords:hover {
+      background: rgba(246, 135, 179, 0.3);
+    }
+
+    #timeSetter {
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeIn 1.4s ease-in-out;
+    }
+
+    #timeSetter input {
+      padding: 10px;
+      font-size: 16px;
+      width: 70px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: #333;
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    body.dark-mode #timeSetter input {
+      background: rgba(0, 0, 0, 0.2);
+      color: #e0e0e0;
+    }
+
+    #timeSetter input:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba(43, 108, 176, 0.5);
+    }
+
+    #timerContainer {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 20px;
+      animation: fadeIn 1.6s ease-in-out;
+    }
+
+    #timer, #questionTimer {
+      font-size: 36px;
+      font-weight: 600;
+      padding: 20px 30px;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #e6f0fa, #ffffff);
+      box-shadow: var(--shadow-light);
+      transition: all 0.3s ease;
+    }
+
+    #timer:hover, #questionTimer:hover {
+      box-shadow: 0 0 15px rgba(43, 108, 176, 0.5);
+    }
+
+    #timer {
+      color: var(--primary-color);
+      font-size: 28px;
+    }
+
+    #questionTimer {
+      color: #3182ce;
+      font-size: 40px;
+      background: linear-gradient(145deg, #bee3f8, #e6f7ff);
+    }
+
+    body.dark-mode #timer, body.dark-mode #questionTimer {
+      background: linear-gradient(145deg, #2d4a7e, #3b5998);
+      box-shadow: var(--shadow-dark);
+      color: #b3d9ff;
+    }
+
+    body.dark-mode #questionTimer {
+      background: linear-gradient(145deg, #3b5998, #4a6a8f);
+    }
+
+    #timerContainer div {
       text-align: center;
     }
-    #timer, #questionTimer {
-      font-size: 28px;
+
+    #timerContainer div div:last-child {
+      font-size: 16px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    body.dark-mode #timerContainer div div:last-child {
+      color: #a0aec0;
+    }
+
+    #buttonContainer {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      animation: fadeIn 1.8s ease-in-out;
+    }
+
+    #status, #startMessage {
+      font-size: 20px;
       margin: 10px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 2s ease-in-out;
     }
-    #questionTimes, #pastRecords {
+
+    #startMessage {
+      color: #e53e3e;
+    }
+
+    body.dark-mode #startMessage {
+      color: #f687b3;
+    }
+
+    .paused-label {
+      font-size: 18px;
+      color: #e53e3e;
+      margin-top: 10px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 2.2s ease-in-out;
+    }
+
+    body.dark-mode .paused-label {
+      color: #f687b3;
+    }
+
+    #questionTimes {
       margin-top: 20px;
-      text-align: left;
+      font-size: 18px;
+      width: 90%;
       max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      text-align: left;
+      padding: 15px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-light);
+      animation: fadeIn 2.4s ease-in-out;
     }
-    .question-entry {
-      background: #e6f7ff;
-      margin: 10px 0;
+
+    body.dark-mode #questionTimes {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    #questionTimes h3 {
+      margin: 0 0 10px 0;
+      color: var(--primary-color);
+    }
+
+    body.dark-mode #questionTimes h3 {
+      color: #63b3ed;
+    }
+
+    .question-entry, .record-entry {
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 10px;
+      background: #edf2f7;
+      margin: 8px 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-    button {
-      padding: 10px 20px;
-      margin: 10px 5px;
-      font-size: 14px;
-      border-radius: 6px;
-      border: none;
-      background: #007BFF;
-      color: white;
+
+    .question-entry:hover, .record-entry:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .question-entry, body.dark-mode .record-entry {
+      background: #2d4a7e;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .record-entry {
       cursor: pointer;
     }
-    button:hover {
-      background: #0056b3;
+
+    .record-details {
+      display: none;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    body.dark-mode .record-details {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    #timeSetter button, #exportPdf, #pauseButton, #resetButton, #viewRecordsButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-light);
+      transition: all 0.3s ease;
+    }
+
+    #timeSetter button:hover, #exportPdf:hover, #pauseButton:hover, #resetButton:hover, #viewRecordsButton:hover {
+      background: linear-gradient(135deg, #3182ce, #2b6cb0);
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode #timeSetter button, body.dark-mode #exportPdf, body.dark-mode #pauseButton, body.dark-mode #resetButton, body.dark-mode #viewRecordsButton {
+      background: var(--dark-primary-gradient);
+    }
+
+    body.dark-mode #timeSetter button:hover, body.dark-mode #exportPdf:hover, body.dark-mode #pauseButton:hover, body.dark-mode #resetButton:hover, body.dark-mode #viewRecordsButton:hover {
+      background: linear-gradient(135deg, #4299e1, #3182ce);
+    }
+
+    #viewRecordsButton {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+    }
+
+    #viewRecordsButton:hover {
+      background: linear-gradient(135deg, #38a169, #2f855a);
+    }
+
+    body.dark-mode #viewRecordsButton {
+      background: linear-gradient(135deg, #68d391, #48bb78);
+    }
+
+    body.dark-mode #viewRecordsButton:hover {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+    }
+
+    #clearRecordsButton, .delete-record {
+      background: var(--danger-gradient);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #clearRecordsButton:hover, .delete-record:hover {
+      background: linear-gradient(135deg, #c53030, #9b2c2c);
+      transform: scale(1.05);
+    }
+
+    body.dark-mode #clearRecordsButton, body.dark-mode .delete-record {
+      background: var(--dark-danger-gradient);
+    }
+
+    body.dark-mode #clearRecordsButton:hover, body.dark-mode .delete-record:hover {
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+    }
+
+    .delete-record {
+      padding: 5px 10px;
+      margin-left: 10px;
+    }
+
+    @media (max-width: 600px) {
+      #timerContainer {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      #timer, #questionTimer {
+        font-size: 28px;
+        padding: 15px 20px;
+      }
+
+      #questionTimer {
+        font-size: 32px;
+      }
+
+      #status, #startMessage {
+        font-size: 18px;
+      }
+
+      #timeSetter input {
+        width: 60px;
+        font-size: 14px;
+      }
+
+      #timeSetter button, #exportPdf, #pauseButton, #resetButton, #viewRecordsButton, #clearRecordsButton {
+        padding: 8px 15px;
+        font-size: 14px;
+      }
+
+      .delete-record {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+
+      #darkModeToggle, #helpButton {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+
+      #questionTimes, #recordsContent {
+        font-size: 16px;
+      }
+
+      #recordsContent {
+        width: 95%;
+        padding: 15px;
+      }
+
+      .record-entry {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Quiz Timer</h1>
-  <div>
-    <input type="number" id="hoursInput" min="0" placeholder="Hours" value="0"> 
-    <input type="number" id="minutesInput" min="0" max="59" placeholder="Minutes" value="1"> 
-    <button onclick="setTotalTime()">Set Time</button>
+  <div id="headerContainer">
+    <button id="darkModeToggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">☀️</button>
+    <h1>Quiz Timer</h1>
+    <button id="helpButton" onclick="showHelp()" aria-label="Show help">❓</button>
   </div>
 
-  <div id="timer">00:01</div>
-  <div id="questionTimer">00:00</div>
-  <div>
-    <button onclick="togglePause()" id="pauseBtn">Pause</button>
-    <button onclick="resetTimer()">Reset</button>
-    <button onclick="exportToPdf()">Export PDF</button>
-    <button onclick="showPastRecords()">Show Past Records</button>
+  <div id="helpModal">
+    <div id="helpContent">
+      <button id="closeHelp" onclick="closeHelp()" aria-label="Close help modal">×</button>
+      <h2>Quiz Timer Features</h2>
+      <p><strong>Dark/Light Mode:</strong> Toggle between dark and light themes using the ☀️/🌙 icon in the top-left.</p>
+      <p><strong>Set Total Time:</strong> Enter the total quiz duration in hours and minutes and click "Set Time" to start with a custom time.</p>
+      <p><strong>Total Timer:</strong> Displays the remaining time for the entire quiz in hours and minutes.</p>
+      <p><strong>Current Question Timer:</strong> Tracks the time spent on the current question in minutes and seconds.</p>
+      <p><strong>Start/Next Question:</strong> Click anywhere (except buttons or input) to start the timer or move to the next question.</p>
+      <p><strong>Pause/Resume:</strong> Use the "Pause" button to pause the timer; click "Resume" or anywhere to continue.</p>
+      <p><strong>Reset:</strong> Click the "Reset" button to reset all timers and question times to their initial state.</p>
+      <p><strong>Each Question Times:</strong> Lists the time spent on each question after moving to the next one.</p>
+      <p><strong>Past Records:</strong> View previous quiz sessions with their question times and geolocation data.</p>
+      <p><strong>Export PDF:</strong> Export the question times list as a PDF file for record-keeping.</p>
+    </div>
   </div>
+
+  <div id="recordsModal">
+    <div id="recordsContent">
+      <button id="closeRecords" onclick="closePastRecords()" aria-label="Close past records modal">×</button>
+      <h2>Past Quiz Records</h2>
+      <div id="recordsList"></div>
+      <button id="clearRecordsButton" onclick="clearAllRecords()" aria-label="Clear all past quiz records">Clear All Records</button>
+    </div>
+  </div>
+
+  <div id="timeSetter">
+    Set Total Time: 
+    <input type="number" id="hoursInput" min="0" placeholder="Hours" value="0" aria-label="Hours for total quiz time"> 
+    <input type="number" id="minutesInput" min="0" max="59" placeholder="Minutes" value="30" aria-label="Minutes for total quiz time"> 
+    <button onclick="setTotalTime()" aria-label="Set total quiz time">Set Time</button>
+  </div>
+
+  <div id="timerContainer">
+    <div>
+      <div id="timer">00:30</div>
+      <div>Total Time</div>
+    </div>
+    <div>
+      <div id="questionTimer">00:00</div>
+      <div>Current Question Timer</div>
+    </div>
+  </div>
+
+  <div id="buttonContainer">
+    <button id="pauseButton" onclick="togglePause()" aria-label="Pause or resume the timer">Pause</button>
+    <button id="resetButton" onclick="resetTimer()" aria-label="Reset the timer">Reset</button>
+  </div>
+
   <div id="status">Click anywhere to begin</div>
-  <div id="pausedLabel" style="color:red; display:none;">Paused - Click to resume</div>
-
+  <div id="startMessage">Waiting to start...</div>
+  <div id="pausedLabel" class="paused-label" style="display:none;">Paused - Click anywhere to resume</div>
   <div id="questionTimes"></div>
-  <div id="pastRecords"></div>
+  <div style="margin-top: 20px;">
+    <button id="exportPdf" onclick="exportToPdf()" aria-label="Export question times to PDF">Export PDF</button>
+    <button id="viewRecordsButton" onclick="showPastRecords()" aria-label="View past quiz records">View Past Records</button>
+  </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
-    let totalTime = 60;
+    const IPINFO_TOKEN = 'your_valid_token_here'; // Replace with your valid ipinfo.io token
+    let totalTime = 30 * 60;
     let timeLeft = totalTime;
     let isRunning = false;
     let isPaused = false;
@@ -75,28 +567,40 @@
     let questionNumber = 0;
     let questionElapsedTime = 0;
     let questionTimes = [];
+    let pastRecords = JSON.parse(localStorage.getItem('pastRecords')) || [];
 
-    function formatTime(seconds, isTotal = false) {
-      let mins = Math.floor(seconds / 60);
-      let secs = seconds % 60;
-      if (isTotal) {
-        let hrs = Math.floor(mins / 60);
-        mins = mins % 60;
-        return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    const switchSound = new Audio('switch-10.mp3');
+    const timeoutSound = new Audio('alarm-01.mp3');
+
+    function playSound(audio) {
+      audio.play().catch(error => console.warn('Audio playback failed:', error));
+    }
+
+    function formatTime(seconds, isTotalTimer = false) {
+      if (isTotalTimer) {
+        let hours = Math.floor(seconds / 3600);
+        let mins = Math.floor((seconds % 3600) / 60);
+        return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+      } else {
+        let mins = Math.floor(seconds / 60);
+        let secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
-      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
     function setTotalTime() {
-      const hours = parseInt(document.getElementById('hoursInput').value) || 0;
-      const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+      let hours = parseInt(document.getElementById('hoursInput').value) || 0;
+      let minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+      if (isNaN(hours) || isNaN(minutes) || hours < 0 || minutes < 0 || minutes > 59 || (hours === 0 && minutes === 0)) {
+        alert('Please enter valid numbers for hours (0 or more) and minutes (0-59). Total time must be at least 1 minute.');
+        return;
+      }
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      saveCurrentSession();
       totalTime = (hours * 3600) + (minutes * 60);
-      timeLeft = totalTime;
-      resetTimer();
-    }
-
-    function resetTimer() {
-      clearInterval(timerInterval);
       timeLeft = totalTime;
       isRunning = false;
       isPaused = false;
@@ -106,28 +610,58 @@
       updateUI();
     }
 
-    function updateUI() {
-      document.getElementById('timer').textContent = formatTime(timeLeft, true);
-      document.getElementById('questionTimer').textContent = formatTime(0);
-      document.getElementById('questionTimes').innerHTML = '';
-      document.getElementById('status').textContent = 'Click anywhere to begin';
-      document.getElementById('pausedLabel').style.display = 'none';
-      document.getElementById('pauseBtn').textContent = 'Pause';
+    function resetTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      saveCurrentSession();
+      totalTime = 30 * 60;
+      timeLeft = totalTime;
+      isRunning = false;
+      isPaused = false;
+      questionNumber = 0;
+      questionElapsedTime = 0;
+      questionTimes = [];
+      document.getElementById('hoursInput').value = 0;
+      document.getElementById('minutesInput').value = 30;
+      updateUI();
     }
 
     function togglePause() {
       if (!isRunning) return;
       isPaused = !isPaused;
       document.getElementById('pausedLabel').style.display = isPaused ? 'block' : 'none';
-      document.getElementById('pauseBtn').textContent = isPaused ? 'Resume' : 'Pause';
+      document.getElementById('status').textContent = isPaused ? 'Paused' : `Question ${questionNumber} Running`;
+      document.getElementById('pauseButton').textContent = isPaused ? 'Resume' : 'Pause';
+      if (!isPaused) playSound(switchSound);
+    }
+
+    function updateUI() {
+      document.getElementById('timer').textContent = formatTime(timeLeft, true);
+      document.getElementById('questionTimer').textContent = formatTime(0);
+      document.getElementById('status').textContent = 'Click anywhere to begin';
+      document.getElementById('startMessage').textContent = 'Waiting to start...';
+      document.getElementById('pausedLabel').style.display = 'none';
+      document.getElementById('questionTimes').innerHTML = '';
+      document.getElementById('pauseButton').textContent = 'Pause';
+      document.getElementById('exportPdf').disabled = questionTimes.length === 0;
+      document.getElementById('viewRecordsButton').disabled = pastRecords.length === 0;
     }
 
     function updateTimer() {
       if (isPaused || !isRunning) return;
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById('timer').textContent = formatTime(0, true);
+        document.getElementById('questionTimer').textContent = formatTime(0);
         document.getElementById('status').textContent = 'Time’s up!';
-        saveQuizRecord();
+        document.getElementById('startMessage').style.display = 'none';
+        isRunning = false;
+        playSound(timeoutSound);
+        document.getElementById('pauseButton').textContent = 'Pause';
+        saveCurrentSession();
         return;
       }
       timeLeft--;
@@ -137,18 +671,21 @@
     }
 
     function startRound() {
+      if (timeLeft <= 0) return;
       questionNumber++;
       isRunning = true;
       questionElapsedTime = 0;
       document.getElementById('status').textContent = `Question ${questionNumber} Running`;
+      document.getElementById('startMessage').style.display = 'none';
       document.getElementById('pausedLabel').style.display = 'none';
-
       if (!timerInterval) {
         timerInterval = setInterval(updateTimer, 1000);
       }
+      playSound(switchSound);
     }
 
     function stopRoundAndStartNext() {
+      if (timeLeft <= 0) return;
       questionTimes.push({ question: questionNumber, time: questionElapsedTime });
       updateQuestionTimesDisplay();
       startRound();
@@ -157,71 +694,160 @@
     function updateQuestionTimesDisplay() {
       let html = '<h3>Each Question Times:</h3>';
       questionTimes.forEach(q => {
-        html += `<div class="question-entry">Q${q.question}: ${formatTime(q.time)}</div>`;
+        html += `<div class="question-entry">Question ${q.question}: ${formatTime(q.time)}</div>`;
       });
       document.getElementById('questionTimes').innerHTML = html;
+      document.getElementById('exportPdf').disabled = questionTimes.length === 0;
+    }
+
+    function saveCurrentSession() {
+      if (questionTimes.length === 0) return;
+      fetch(`https://api.ipinfo.io/lite/json?token=${IPINFO_TOKEN}`)
+        .then(response => response.json())
+        .then(data => {
+          const session = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            totalTime: totalTime,
+            questionTimes: [...questionTimes],
+            geolocation: {
+              ip: data.ip || 'Unknown',
+              city: data.city || 'Unknown',
+              region: data.region || 'Unknown',
+              country: data.country || 'Unknown',
+              loc: data.loc || 'Unknown',
+              org: data.org || 'Unknown'
+            }
+          };
+          pastRecords.push(session);
+          localStorage.setItem('pastRecords', JSON.stringify(pastRecords));
+          document.getElementById('viewRecordsButton').disabled = false;
+        })
+        .catch(error => {
+          console.warn('Failed to fetch geolocation:', error);
+          const session = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            totalTime: totalTime,
+            questionTimes: [...questionTimes],
+            geolocation: null
+          };
+          pastRecords.push(session);
+          localStorage.setItem('pastRecords', JSON.stringify(pastRecords));
+          document.getElementById('viewRecordsButton').disabled = false;
+        });
+    }
+
+    function toggleDarkMode() {
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      darkModeToggle.classList.add('active');
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+      darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+      setTimeout(() => darkModeToggle.classList.remove('active'), 500);
     }
 
     function exportToPdf() {
-      if (questionTimes.length === 0) return alert("No data to export.");
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text('Each Question Times:', 10, 10);
-      questionTimes.forEach((q, i) => {
-        doc.setFontSize(12);
-        doc.text(`Q${q.question}: ${formatTime(q.time)}`, 10, 20 + i * 10);
-      });
-      doc.save('quiz_times.pdf');
+      if (questionTimes.length === 0) {
+        alert('No question times to export.');
+        return;
+      }
+      const element = document.getElementById('questionTimes');
+      const opt = {
+        margin: 1,
+        filename: 'quiz_times.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
     }
 
-    function saveQuizRecord() {
-      const records = JSON.parse(localStorage.getItem('quizRecords') || '[]');
-      const timestamp = new Date().toLocaleString();
-      records.push({ timestamp, records: questionTimes });
-      localStorage.setItem('quizRecords', JSON.stringify(records));
+    function showHelp() {
+      document.getElementById('helpModal').style.display = 'flex';
+    }
+
+    function closeHelp() {
+      document.getElementById('helpModal').style.display = 'none';
     }
 
     function showPastRecords() {
-      const records = JSON.parse(localStorage.getItem('quizRecords') || '[]');
-      const recordsDiv = document.getElementById('pastRecords');
-      if (records.length === 0) {
-        recordsDiv.innerHTML = '<p>No past records found.</p>';
+      document.getElementById('recordsModal').style.display = 'flex';
+      updateRecordsDisplay();
+    }
+
+    function closePastRecords() {
+      document.getElementById('recordsModal').style.display = 'none';
+    }
+
+    function updateRecordsDisplay() {
+      const recordsList = document.getElementById('recordsList');
+      if (pastRecords.length === 0) {
+        recordsList.innerHTML = '<p>No past records available.</p>';
+        document.getElementById('clearRecordsButton').disabled = true;
         return;
       }
-      let html = '<h3>Past Records:</h3>';
-      records.forEach((entry, i) => {
-        html += `<div class="question-entry">
-          <strong>${entry.timestamp}</strong>
-          <ul>${entry.records.map(q => `<li>Q${q.question}: ${formatTime(q.time)}</li>`).join('')}</ul>
-          <button onclick="downloadRecord(${i})">Download PDF</button>
-        </div>`;
+      document.getElementById('clearRecordsButton').disabled = false;
+      let html = '';
+      pastRecords.forEach(record => {
+        const geo = record.geolocation
+          ? `Location: ${record.geolocation.city}, ${record.geolocation.region}, ${record.geolocation.country}`
+          : 'Location: Unknown';
+        html += `
+          <div class="record-entry" onclick="toggleRecordDetails(${record.id})">
+            <div>Quiz on ${record.date} (Total Time: ${formatTime(record.totalTime, true)})</div>
+            <div>${geo}</div>
+            <button class="delete-record" onclick="deleteRecord(${record.id}); event.stopPropagation()" aria-label="Delete this quiz record">Delete</button>
+            <div class="record-details" id="details-${record.id}">
+              <h4>Question Times:</h4>
+              ${record.questionTimes.map(q => `<div>Question ${q.question}: ${formatTime(q.time)}</div>`).join('')}
+            </div>
+          </div>
+        `;
       });
-      recordsDiv.innerHTML = html;
+      recordsList.innerHTML = html;
     }
 
-    function downloadRecord(index) {
-      const { jsPDF } = window.jspdf;
-      const records = JSON.parse(localStorage.getItem('quizRecords') || '[]');
-      const entry = records[index];
-      const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text(`Quiz Record: ${entry.timestamp}`, 10, 10);
-      entry.records.forEach((q, i) => {
-        doc.setFontSize(12);
-        doc.text(`Q${q.question}: ${formatTime(q.time)}`, 10, 20 + i * 10);
-      });
-      doc.save(`quiz_record_${index + 1}.pdf`);
+    function toggleRecordDetails(id) {
+      const details = document.getElementById(`details-${id}`);
+      details.style.display = details.style.display === 'block' ? 'none' : 'block';
     }
 
-    // Handle clicks to start/next/resume
+    function deleteRecord(id) {
+      if (confirm('Are you sure you want to delete this record?')) {
+        pastRecords = pastRecords.filter(record => record.id !== id);
+        localStorage.setItem('pastRecords', JSON.stringify(pastRecords));
+        updateRecordsDisplay();
+        document.getElementById('viewRecordsButton').disabled = pastRecords.length === 0;
+      }
+    }
+
+    function clearAllRecords() {
+      if (confirm('Are you sure you want to delete all past records?')) {
+        pastRecords = [];
+        localStorage.setItem('pastRecords', JSON.stringify(pastRecords));
+        updateRecordsDisplay();
+        document.getElementById('viewRecordsButton').disabled = true;
+      }
+    }
+
     document.addEventListener('click', function(e) {
-      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+      if (e.target === document.getElementById('helpModal')) {
+        closeHelp();
+        return;
+      }
+      if (e.target === document.getElementById('recordsModal')) {
+        closePastRecords();
+        return;
+      }
+      if (['INPUT', 'BUTTON'].includes(e.target.tagName) || e.target.closest('#helpContent') || e.target.closest('#recordsContent')) return;
       if (timeLeft <= 0) return;
       if (isPaused) {
         isPaused = false;
         document.getElementById('pausedLabel').style.display = 'none';
-        document.getElementById('pauseBtn').textContent = 'Pause';
+        document.getElementById('status').textContent = isRunning ? `Question ${questionNumber} Running` : 'Click to Start';
+        document.getElementById('pauseButton').textContent = 'Pause';
+        playSound(switchSound);
         return;
       }
       if (!isRunning) {
@@ -231,17 +857,31 @@
       }
     });
 
-    // Show viewer IP
-    fetch('https://ipinfo.io/json?token=af919688e6d157')
-      .then(res => res.json())
-      .then(data => {
-        const ipEl = document.createElement('div');
-        ipEl.textContent = `Your IP: ${data.ip}`;
-        ipEl.style.marginTop = '15px';
-        ipEl.style.fontSize = '14px';
-        ipEl.style.color = '#555';
-        document.body.appendChild(ipEl);
-      });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ' && !['INPUT', 'BUTTON'].includes(e.target.tagName)) {
+        e.preventDefault();
+        if (timeLeft <= 0) return;
+        if (isPaused) {
+          togglePause();
+        } else if (!isRunning) {
+          startRound();
+        } else {
+          stopRoundAndStartNext();
+        }
+      } else if (e.key === 'p') {
+        togglePause();
+      } else if (e.key === 'Escape') {
+        closeHelp();
+        closePastRecords();
+      }
+    });
+
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      document.getElementById('darkModeToggle').textContent = '☀️';
+    } else {
+      document.getElementById('darkModeToggle').textContent = '🌙';
+    }
 
     updateUI();
   </script>
